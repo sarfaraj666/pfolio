@@ -166,7 +166,7 @@ function Hero() {
           <Reveal delay={0.1}><p className="hero-hello">Hello, I'm</p></Reveal>
           <Reveal delay={0.16}><h1 className="hero-name">Sk Sarfaraj <span>Ali<span className="period">.</span></span></h1></Reveal>
           <Reveal delay={0.23}><div className="hero-role"><span className="role-bracket">&lt;</span> <TypeRole /> <span className="role-bracket">/&gt;</span></div></Reveal>
-          <Reveal delay={0.28}><p className="hero-description">{portfolio.intro} <span>Currently studying Computer Science & Engineering in Indore.</span></p></Reveal>
+          <Reveal delay={0.28}><p className="hero-description">{portfolio.intro} <span>Currently studying Computer Science & Engineering at {portfolio.education.college} in Indore.</span></p></Reveal>
           <Reveal className="hero-buttons" delay={0.34}>
             <a className="button button-primary" href="#projects">Explore My Work <ArrowUpRight size={17}/></a>
             <a className="button button-ghost" href="#contact">Contact Me <ArrowRight size={17}/></a>
@@ -227,7 +227,7 @@ function Skills() {
           {portfolio.skills.map((skill, index) => {
             const Icon = skillIcons[index];
             return <Reveal key={skill.category} className={`skill-card skill-card-${index + 1}`} delay={index * 0.08}>
-              <div className="skill-card-head"><span className="skill-main-icon"><Icon size={23}/></span><span className="skill-count">0{index + 1} / 03</span></div>
+              <div className="skill-card-head"><span className="skill-main-icon"><Icon size={23}/></span><span className="skill-count">0{index + 1} / {String(portfolio.skills.length).padStart(2, '0')}</span></div>
               <h3>{skill.category}</h3><p>{skill.caption}</p>
               <div className="skill-items">{skill.items.map(item => <span key={item} className="skill-pill"><span className="skill-symbol">{skillSymbols[item]}</span>{item}</span>)}</div>
               <div className="skill-card-decoration" aria-hidden="true"><Icon size={120} strokeWidth={0.7}/></div>
@@ -288,14 +288,30 @@ function Projects() {
 function Contact() {
   const [form, setForm] = useState({ name: '', email: '', message: '' });
   const [notice, setNotice] = useState('');
-  const change = event => { setForm(prev => ({ ...prev, [event.target.name]: event.target.value })); setNotice(''); };
-  const emailDraft = event => {
+  const [sending, setSending] = useState(false);
+  const [sent, setSent] = useState(false);
+  const change = event => { setForm(prev => ({ ...prev, [event.target.name]: event.target.value })); setNotice(''); setSent(false); };
+  const sendMessage = async event => {
     event.preventDefault();
     if (!event.currentTarget.reportValidity()) return;
-    const subject = encodeURIComponent(`Portfolio enquiry from ${form.name}`);
-    const body = encodeURIComponent(`Hi Sarfaraj,\n\n${form.message}\n\nFrom: ${form.name}\nReply-to: ${form.email}`);
-    setNotice('Your email application will open with a prepared draft. Nothing has been sent automatically.');
-    window.location.href = `mailto:${portfolio.contact.email}?subject=${subject}&body=${body}`;
+    setSending(true);
+    setNotice('Sending your message…');
+    try {
+      const response = await fetch(`https://formsubmit.co/ajax/${encodeURIComponent(portfolio.contact.email)}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({ name: form.name.trim(), email: form.email.trim(), message: form.message.trim(), _subject: `Portfolio enquiry from ${form.name.trim()}`, _honey: '' }),
+      });
+      const result = await response.json();
+      if (!response.ok || result.success !== 'true') throw new Error(result.message || 'Message could not be sent. Please try again.');
+      setForm({ name: '', email: '', message: '' });
+      setSent(true);
+      setNotice('Message sent! Thank you for reaching out.');
+    } catch {
+      setNotice('We could not send your message right now. Please email directly using the email link.');
+    } finally {
+      setSending(false);
+    }
   };
   return (
     <section id="contact" className="section contact-section">
@@ -314,14 +330,15 @@ function Contact() {
             </div>
           </Reveal>
           <Reveal className="contact-form-wrapper" delay={0.12}>
-            <div className="form-header"><span><Send size={17}/> START A CONVERSATION</span><span className="form-indicator"><span className="status-dot"/> Email draft</span></div>
-            <form onSubmit={emailDraft} className="contact-form">
+            <div className="form-header"><span><Send size={17}/> START A CONVERSATION</span><span className="form-indicator"><span className="status-dot"/> {sending ? 'Sending' : sent ? 'Sent' : 'Direct email'}</span></div>
+            <form onSubmit={sendMessage} className="contact-form">
+              <label className="contact-honeypot" aria-hidden="true">Leave this field empty<input name="_honey" tabIndex={-1} autoComplete="off" onChange={change} value={form._honey || ''} /></label>
               <label htmlFor="contact-name">Your name</label><input id="contact-name" name="name" type="text" autoComplete="name" placeholder="What should I call you?" value={form.name} onChange={change} maxLength={80} required />
               <label htmlFor="contact-email">Email address</label><input id="contact-email" name="email" type="email" autoComplete="email" placeholder="you@example.com" value={form.email} onChange={change} maxLength={120} required />
               <label htmlFor="contact-message">Your message</label><textarea id="contact-message" name="message" placeholder="Tell me a little about your idea..." rows={5} value={form.message} onChange={change} maxLength={3000} required />
-              <button type="submit" className="button button-primary form-submit">Open Email Draft <ArrowUpRight size={17}/></button>
-              <p className="form-disclaimer">No backend is connected. This opens your email app; it does not send a message automatically.</p>
-              <p className="form-notice" role="status" aria-live="polite">{notice}</p>
+              <button type="submit" className="button button-primary form-submit" disabled={sending}>{sending ? 'Sending…' : sent ? 'Send Another Message' : 'Send Message'} <ArrowUpRight size={17}/></button>
+              <p className="form-disclaimer">Your message will be emailed directly. We only use your details to reply.</p>
+              <p className={`form-notice ${sent ? 'form-notice-success' : ''}`} role="status" aria-live="polite">{notice}</p>
             </form>
           </Reveal>
         </div>

@@ -60,13 +60,13 @@ Sarfaraj_Premium_Portfolio/
 - Smooth anchor navigation and scroll-triggered motion
 - Hero text transition and lightweight ambient cursor-follow effect
 - Editable skills, project cards, GitHub/LinkedIn/email links
-- Contact form input validation and a **mailto draft action**
+- Contact form input validation and direct email submission through FormSubmit
 - Accessibility essentials: semantic sections, labels, skip link, focus rings, reduced-motion support
 - Basic search engine and social metadata
 
 ## Important limitations
 
-- The contact form is **not** a hosted form. It opens a draft in the visitor's email application and will not send anything on its own.
+- The contact form uses FormSubmit. The first submission requires confirming the activation email sent to the portfolio inbox before future messages are delivered.
 - GitHub Pages deploys the site automatically after pushes to the `main` branch.
 - The included initial concept project visuals should be replaced with authentic screenshots before a public launch.
 - The portfolio email came from prior user-provided resume details; verify it before publishing. The LinkedIn URL provided for this project may differ from the one linked in your GitHub bio.
