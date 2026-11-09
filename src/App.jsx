@@ -34,7 +34,7 @@ function Reveal({ children, className = '', delay = 0, y = 25 }) {
 function SectionHeading({ number, eyebrow, title, subtitle }) {
   return (
     <Reveal className="section-heading">
-      <div className="eyebrow"><span className="section-number">{number}</span><span className="eyebrow-divider" />{eyebrow}</div>
+      <div className="eyebrow">{number && <><span className="section-number">{number}</span><span className="eyebrow-divider" /></>}{eyebrow}</div>
       <h2>{title}</h2>
       {subtitle && <p>{subtitle}</p>}
     </Reveal>
@@ -188,7 +188,7 @@ function About() {
   return (
     <section id="about" className="section about-section">
       <div className="container">
-        <SectionHeading number="01" eyebrow="GET TO KNOW ME" title={<>A little about <span className="text-gradient">me.</span></>} subtitle="Curious by nature. Focused on learning. Always building." />
+        <SectionHeading eyebrow="ABOUT ME" title={<>A little about <span className="text-gradient">me.</span></>} subtitle="Curious by nature. Focused on learning. Always building." />
         <div className="about-grid">
           <Reveal className="portrait-col">
             <div className="portrait-card">
