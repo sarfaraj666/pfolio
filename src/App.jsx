@@ -164,7 +164,7 @@ function Hero() {
         <div className="hero-copy">
           <Reveal delay={0.04}><p className="hero-eyebrow"><span className="status-dot"/> OPEN TO LEARNING & COLLABORATION <span className="hero-eyebrow-line"/></p></Reveal>
           <Reveal delay={0.1}><p className="hero-hello">Hello, I'm</p></Reveal>
-          <Reveal delay={0.16}><h1>Sk Sarfaraj<br/><span>Ali<span className="period">.</span></span></h1></Reveal>
+          <Reveal delay={0.16}><h1 className="hero-name">Sk Sarfaraj <span>Ali<span className="period">.</span></span></h1></Reveal>
           <Reveal delay={0.23}><div className="hero-role"><span className="role-bracket">&lt;</span> <TypeRole /> <span className="role-bracket">/&gt;</span></div></Reveal>
           <Reveal delay={0.28}><p className="hero-description">{portfolio.intro} <span>Currently studying Computer Science & Engineering in Indore.</span></p></Reveal>
           <Reveal className="hero-buttons" delay={0.34}>

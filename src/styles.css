@@ -275,6 +275,10 @@ img { max-width: 100%; display: block; }
   .hero-visual { height: 345px; }.code-window { width: 88%; }.code-lines { padding: 14px 10px 17px; font-size: 9px; }.line-num { width: 27px; }.code-window-bar { height: 37px; }.code-status { font-size: 9px; padding: 8px 11px; }.code-file { font-size: 10px; }.float-note { min-width: 0; padding: 8px 10px; gap: 7px; }.float-note b { font-size: 9px; }.float-note small { font-size: 8px; }.float-icon { width: 25px; height: 25px; }.float-icon svg { width: 15px; }.note-top { top: -7px; right: 0; }.note-bottom { bottom: -2px; left: 0; }.ring-one { width: 330px; height: 330px; }.ring-two { width: 270px; height: 270px; }
   .portrait-card { height: 400px; }.portrait-initials { font-size: 94px; }.skill-card { padding: 24px; }.project-preview { min-height: 280px; }.concept-interior-right { padding: 18px; }.concept-interior-right strong { margin: 20px 0; }.concept-inner { padding: 78px 28px 30px; }.concept-inner strong { font-size: 49px; }.form-header { padding: 18px; }.form-header > span:first-child { font-size: 9px; }.form-indicator { font-size: 9px; }.contact-form { padding: 20px; }.contact-intro h3 { font-size: 38px; }.footer-inner { flex-direction: column; gap: 25px; }.footer-bottom { font-size: 9px; }
 }
+.hero-copy h1.hero-name { font-size: 80px; white-space: nowrap; }
+@media(max-width:1100px) { .hero-copy h1.hero-name { font-size: 64px; } }
+@media(max-width:900px) { .hero-copy h1.hero-name { font-size: 56px; } }
+@media(max-width:480px) { .hero-copy h1.hero-name { font-size: 42px; } }
 @media(prefers-reduced-motion:reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
 }
