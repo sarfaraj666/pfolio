@@ -15,7 +15,7 @@ export const portfolio = {
   },
   intro: 'I build thoughtful, responsive web experiences and enjoy turning ideas into clean, functional interfaces.',
   about: 'I am a Computer Science & Engineering student with an interest in frontend development and software engineering. I enjoy learning by building real projects, improving details, and making digital experiences intuitive across devices.',
-  profileImage: '/images/profile.jpg',
+  profileImage: `${import.meta.env.BASE_URL}images/profile.jpg`,
   resumeUrl: '', // To enable resume: put your PDF in public/resume.pdf and set '/resume.pdf'.
   contact: {
     email: 'sksarfarajali824@gmail.com', // Previously provided; confirm before publishing.

@@ -2,6 +2,8 @@
 
 A modern, responsive **React + Vite + Tailwind CSS** single-page developer portfolio, featuring Framer Motion animations and Lucide icons. Built for local development first, without deployment or backend services.
 
+**Live site:** https://sarfaraj666.github.io/pfolio/
+
 ## Quick start
 
 You need **Node.js 18+** and npm, plus an internet connection for the first dependency installation.
@@ -65,7 +67,7 @@ Sarfaraj_Premium_Portfolio/
 ## Important limitations
 
 - The contact form is **not** a hosted form. It opens a draft in the visitor's email application and will not send anything on its own.
-- The site is **not deployed**; no existing GitHub repository or live website was changed.
+- GitHub Pages deploys the site automatically after pushes to the `main` branch.
 - The included initial concept project visuals should be replaced with authentic screenshots before a public launch.
 - The portfolio email came from prior user-provided resume details; verify it before publishing. The LinkedIn URL provided for this project may differ from the one linked in your GitHub bio.
 - External typefaces are requested from Google Fonts when a network connection is available; system fonts are used as fallback.
