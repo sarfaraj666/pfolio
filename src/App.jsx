@@ -222,7 +222,7 @@ function Skills() {
   return (
     <section id="skills" className="section skills-section">
       <div className="container">
-        <SectionHeading number="02" eyebrow="MY TOOLKIT" title={<>Skills &amp; <span className="text-gradient">technologies.</span></>} subtitle="A growing set of tools I use to turn concepts into functional interfaces." />
+        <SectionHeading eyebrow="MY TOOLKIT" title={<>Skills &amp; <span className="text-gradient">technologies.</span></>} subtitle="A growing set of tools I use to turn concepts into functional interfaces." />
         <div className="skills-grid">
           {portfolio.skills.map((skill, index) => {
             const Icon = skillIcons[index];
@@ -277,7 +277,7 @@ function Projects() {
   return (
     <section id="projects" className="section projects-section">
       <div className="container">
-        <SectionHeading number="03" eyebrow="SELECTED WORK" title={<>Things I've <span className="text-gradient">built.</span></>} subtitle="A look at real projects, from elegant interfaces to personal experiments." />
+        <SectionHeading eyebrow="SELECTED WORK" title={<>Things I've <span className="text-gradient">built.</span></>} subtitle="A look at real projects, from elegant interfaces to personal experiments." />
         <div className="projects-list">{portfolio.projects.map((project, index) => <ProjectCard key={project.id} project={project} featured={index === 0}/>)}</div>
         <Reveal className="more-projects"><span>Interested in seeing more of my code?</span><a href={portfolio.contact.github} target="_blank" rel="noopener noreferrer">Explore GitHub <ArrowUpRight size={17}/></a></Reveal>
       </div>
@@ -300,7 +300,7 @@ function Contact() {
   return (
     <section id="contact" className="section contact-section">
       <div className="container">
-        <SectionHeading number="04" eyebrow="LET'S CONNECT" title={<>Let's build something <span className="text-gradient">great.</span></>} subtitle="Have an interesting idea, a project, or just want to say hello? I'd love to hear from you." />
+        <SectionHeading eyebrow="LET'S CONNECT" title={<>Let's build something <span className="text-gradient">great.</span></>} subtitle="Have an interesting idea, a project, or just want to say hello? I'd love to hear from you." />
         <div className="contact-grid">
           <Reveal className="contact-intro">
             <div className="contact-spark"><Sparkles size={22}/></div>
