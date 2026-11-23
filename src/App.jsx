@@ -17,7 +17,18 @@ const navItems = [
 ];
 
 function Reveal({ children, className = '', delay = 0, y = 25 }) {
-  return <div className={className}>{children}</div>;
+  const reducedMotion = useReducedMotion();
+  return (
+    <motion.div
+      className={className}
+      initial={reducedMotion ? false : { opacity: 0, y }}
+      whileInView={reducedMotion ? undefined : { opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.16, margin: '0px 0px -36px 0px' }}
+      transition={{ duration: 0.58, delay, ease: [0.22, 1, 0.36, 1] }}
+    >
+      {children}
+    </motion.div>
+  );
 }
 
 function SectionHeading({ number, eyebrow, title, subtitle }) {
