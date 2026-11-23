@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { AnimatePresence, motion, useReducedMotion, useScroll, useTransform } from 'framer-motion';
 import {
   ArrowDown, ArrowRight, ArrowUp, ArrowUpRight, Braces, Check,
   ChevronRight, Code2, Command, Download, ExternalLink, Github, GraduationCap,
@@ -149,10 +149,16 @@ function TypeRole() {
 }
 
 function CodeVisual() {
+  const featuredProject = portfolio.projects.find(project => project.id === 'feality');
   return (
     <div className="hero-visual" aria-label="Decorative illustration of a developer workspace">
       <div className="hero-visual-ring ring-one"/><div className="hero-visual-ring ring-two"/>
-      <div className="code-window">
+      <div className="hero-work-window">
+        <div className="hero-work-bar"><span className="traffic"><i/><i/><i/></span><span>Selected work · 01</span><ArrowUpRight size={14}/></div>
+        {featuredProject?.previewImage && <img src={featuredProject.previewImage} alt="FEALITY ITALY website visual" fetchPriority="high"/>}
+        <div className="hero-work-caption"><span>Frontend development</span><strong>FEALITY ITALY</strong></div>
+      </div>
+      <div className="code-window hero-code-window">
         <div className="code-window-bar"><span className="traffic"><i/><i/><i/></span><span className="code-file"><Code2 size={13}/> developer.js</span><span className="window-dots">•••</span></div>
         <div className="code-lines" aria-hidden="true">
           <div><span className="line-num">01</span><span className="code-purple">const </span><span className="code-blue">developer </span><span className="code-faded">= {'{'}</span></div>
@@ -167,9 +173,8 @@ function CodeVisual() {
         </div>
         <div className="code-status"><span><span className="status-dot"/> All systems ready</span><span>JavaScript <Braces size={13}/></span></div>
       </div>
-      <div className="float-note note-top"><span className="float-icon"><Sparkles size={18}/></span><span><b>Creative thinking</b><small>Meets clean code</small></span></div>
-      <div className="float-note note-bottom"><span className="float-icon icon-blue"><TerminalSquare size={18}/></span><span><b>Building for the web</b><small>One project at a time</small></span></div>
-      <div className="hero-visual-label">DESIGN <span>×</span> DEVELOPMENT</div>
+      <div className="float-note note-top"><span><b>Designed with detail</b><small>Built for the web</small></span></div>
+      <a className="hero-project-link" href={featuredProject?.liveUrl} target="_blank" rel="noopener noreferrer">Open live project <ArrowUpRight size={15}/></a>
     </div>
   );
 }
@@ -215,6 +220,11 @@ function About() {
     <section id="about" className="section about-section">
       <div className="container">
         <SectionHeading eyebrow="About me" title={<>A little about <span className="text-gradient">me.</span></>} subtitle="Curious by nature. Focused on learning. Always building." />
+        <Reveal className="about-manifesto" y={42}>
+          <span>My approach</span>
+          <p>I turn ideas into <em>thoughtful</em> web experiences.</p>
+          <ArrowDown size={18}/>
+        </Reveal>
         <div className="about-grid">
           <Reveal className="portrait-col">
             <div className="portrait-card">
@@ -267,6 +277,7 @@ function Skills() {
 }
 
 function PreviewConcept({ project }) {
+  if (project.previewImage) return <img className="project-screen-image" src={project.previewImage} alt={`${project.name} homepage visual`} loading="lazy"/>;
   if (project.screenshot) return <img className="project-screen-image" src={project.screenshot} alt={`${project.name} website screenshot`} loading="lazy"/>;
   if (project.theme === 'interior') return (
     <div className="concept concept-interior" aria-label="Conceptual visual placeholder for FEALITY ITALY; not an actual website screenshot">
@@ -300,12 +311,71 @@ function ProjectCard({ project, featured = false }) {
     </div>
   </Reveal>;
 }
+
+function ProjectScene({ project, index, count, scrollYProgress }) {
+  const reducedMotion = useReducedMotion();
+  const start = index / count;
+  const end = (index + 1) / count;
+  const tilt = useTransform(scrollYProgress, [start, end], index === 0 ? [8, 0] : [0, -8]);
+  const scale = useTransform(scrollYProgress, [start, end], [.92, 1]);
+  return (
+    <article className={`project-scene project-scene-${index + 1}`}>
+      <div className="project-scene-top"><span>Selected work / 0{index + 1}</span><span>{String(index + 1).padStart(2, '0')} <i>/</i> {String(portfolio.projects.length).padStart(2, '0')}</span></div>
+      <div className="project-scene-content">
+        <div className="project-scene-copy">
+          <span className="project-category">{project.category}</span>
+          <h3>{project.name}</h3>
+          <p>{project.description}</p>
+          <div className="project-tags">{project.technologies.map(tech => <span key={tech}>{tech}</span>)}</div>
+          <div className="project-actions">
+            {project.liveUrl && <a className="project-live-link" href={project.liveUrl} target="_blank" rel="noopener noreferrer">Open live project <ArrowUpRight size={17}/></a>}
+            {project.githubUrl && <a className="project-repo-link" href={project.githubUrl} target="_blank" rel="noopener noreferrer"><Github size={17}/> Source code</a>}
+            <a className="project-inquiry-link" href={`mailto:${portfolio.contact.email}?subject=${encodeURIComponent(`Enquiry about ${project.name}`)}`}><Mail size={16}/> Enquire</a>
+          </div>
+        </div>
+        <motion.div className="project-scene-preview" style={reducedMotion ? undefined : { rotateY: tilt, scale }}>
+          <div className="project-preview"><PreviewConcept project={project}/>{!project.screenshot && <span className="preview-disclaimer">Concept preview · screenshot pending</span>}</div>
+          <span className="project-scene-orbit" aria-hidden="true" />
+        </motion.div>
+      </div>
+      <span className="project-scene-number">{String(index + 1).padStart(2, '0')}</span>
+    </article>
+  );
+}
+
+function ProjectJourney() {
+  const journeyRef = useRef(null);
+  const reducedMotion = useReducedMotion();
+  const { scrollYProgress } = useScroll({
+    target: journeyRef,
+    offset: ['start start', 'end end'],
+  });
+  const count = Math.max(portfolio.projects.length, 1);
+  const trackX = useTransform(scrollYProgress, [0, 1], ['0%', `-${((count - 1) / count) * 100}%`]);
+  const progressScale = useTransform(scrollYProgress, [0, 1], [0.06, 1]);
+
+  return (
+    <>
+      <div className="projects-journey" ref={journeyRef} style={{ height: `${count * 100}svh` }}>
+        <div className="projects-sticky-stage">
+          <motion.div className="projects-track" style={{ width: `${count * 100}%`, '--project-count': count, ...(reducedMotion ? {} : { x: trackX }) }}>
+            {portfolio.projects.map((project, index) => <ProjectScene key={project.id} project={project} index={index} count={count} scrollYProgress={scrollYProgress}/>)}
+          </motion.div>
+          <div className="projects-progress" aria-hidden="true"><span/><motion.i style={{ scaleX: progressScale }}/></div>
+          <span className="projects-scroll-hint"><ArrowDown size={14}/> Keep scrolling</span>
+        </div>
+      </div>
+      <div className="projects-mobile-list">{portfolio.projects.map((project, index) => <ProjectCard key={project.id} project={project} featured={index === 0}/>)}</div>
+    </>
+  );
+}
+
 function Projects() {
   return (
     <section id="projects" className="section projects-section">
       <div className="container">
       <SectionHeading eyebrow="Selected projects" title={<>Things I've <span className="text-gradient">built.</span></>} subtitle="Frontend work, with the details behind each project." />
-        <div className="projects-list">{portfolio.projects.map((project, index) => <ProjectCard key={project.id} project={project} featured={index === 0}/>)}</div>
+        <ProjectJourney />
         <Reveal className="more-projects"><span>Interested in seeing more of my code?</span><a href={portfolio.contact.github} target="_blank" rel="noopener noreferrer">Explore GitHub <ArrowUpRight size={17}/></a></Reveal>
       </div>
     </section>
@@ -343,7 +413,7 @@ function Contact() {
   return (
     <section id="contact" className="section contact-section">
       <div className="container">
-      <SectionHeading eyebrow="Contact" title={<>Let's build something <span className="text-gradient">great.</span></>} subtitle="Have an idea, a project, or a question? Send me a note." />
+      <SectionHeading eyebrow="Contact" title={<>Have an idea?<br/>Let's make it <span className="text-gradient">real.</span></>} subtitle="Have a project or a question? Send me a note." />
         <div className="contact-grid">
           <Reveal className="contact-intro">
             <div className="contact-spark"><Sparkles size={22}/></div>

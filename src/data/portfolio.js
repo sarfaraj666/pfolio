@@ -39,9 +39,10 @@ export const portfolio = {
       category: 'Frontend Development · Luxury Interiors',
       description: 'A responsive luxury interior design frontend showcasing kitchen, wardrobe and vanity collections through an editorial visual experience.',
       technologies: ['HTML', 'CSS', 'JavaScript', 'Responsive Design'],
-      liveUrl: 'https://sarfaraj666.github.io/FEALITY_ITALY/',
-      githubUrl: 'https://github.com/sarfaraj666/FEALITY_ITALY',
-      screenshot: '', // Replace with '/images/feality.webp' once you upload an authentic screenshot.
+      liveUrl: 'https://sarfaraj666.github.io/FEALITY-ITALY/',
+      githubUrl: 'https://github.com/sarfaraj666/FEALITY-ITALY',
+      previewImage: 'https://sarfaraj666.github.io/FEALITY-ITALY/assets/images/kitchen-photos/web/5-960.webp',
+      screenshot: '', // Add a full-page capture when available; previewImage uses the live project's hero photo.
       theme: 'interior',
     },
     {
