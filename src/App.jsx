@@ -4,7 +4,7 @@ import {
   ArrowDown, ArrowRight, ArrowUp, ArrowUpRight, Braces, Check,
   ChevronRight, Code2, Command, Download, ExternalLink, Github, GraduationCap,
   Laptop2, Linkedin, Mail, MapPin, Menu, Moon, MoveUpRight, Send,
-  Sparkles, Sun, TerminalSquare, X,
+  Search, Sparkles, Sun, TerminalSquare, X,
 } from 'lucide-react';
 import { portfolio } from './data/portfolio';
 
@@ -12,23 +12,12 @@ const navItems = [
   { id: 'home', label: 'Home' },
   { id: 'about', label: 'About' },
   { id: 'skills', label: 'Skills' },
-  { id: 'projects', label: 'Projects' },
+  { id: 'projects', label: 'Collection' },
   { id: 'contact', label: 'Contact' },
 ];
 
 function Reveal({ children, className = '', delay = 0, y = 25 }) {
-  const reducedMotion = useReducedMotion();
-  return (
-    <motion.div
-      className={className}
-      initial={reducedMotion ? false : { opacity: 0, y }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.12 }}
-      transition={{ duration: reducedMotion ? 0 : 0.65, delay: reducedMotion ? 0 : delay, ease: [0.22, 1, 0.36, 1] }}
-    >
-      {children}
-    </motion.div>
-  );
+  return <div className={className}>{children}</div>;
 }
 
 function SectionHeading({ number, eyebrow, title, subtitle }) {
@@ -45,6 +34,8 @@ function Navbar({ theme, toggleTheme }) {
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState('home');
   const [scrolled, setScrolled] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [query, setQuery] = useState('');
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -65,13 +56,26 @@ function Navbar({ theme, toggleTheme }) {
   }, []);
 
   useEffect(() => {
-    if (!open) return;
-    const onKey = event => { if (event.key === 'Escape') setOpen(false); };
+    if (!open && !searchOpen) return;
+    const onKey = event => { if (event.key === 'Escape') { setOpen(false); setSearchOpen(false); } };
     document.addEventListener('keydown', onKey);
     return () => document.removeEventListener('keydown', onKey);
+  }, [open, searchOpen]);
+
+  useEffect(() => {
+    if (!open) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = previousOverflow; };
   }, [open]);
 
   const closeMenu = () => setOpen(false);
+  const searchableItems = [
+    ...navItems.map(item => ({ label: item.label, detail: 'Section', href: `#${item.id}` })),
+    ...portfolio.projects.map(project => ({ label: project.name, detail: project.category, href: '#projects' })),
+    ...portfolio.skills.flatMap(skill => skill.items.map(item => ({ label: item, detail: skill.category, href: '#skills' }))),
+  ];
+  const searchResults = query.trim() ? searchableItems.filter(item => `${item.label} ${item.detail}`.toLowerCase().includes(query.trim().toLowerCase())).slice(0, 7) : [];
   return (
     <header className={`nav-shell ${scrolled ? 'nav-scrolled' : ''}`}>
       <div className="container nav-inner">
@@ -83,21 +87,32 @@ function Navbar({ theme, toggleTheme }) {
           {navItems.map(item => <a key={item.id} href={`#${item.id}`} className={active === item.id ? 'nav-active' : ''}>{item.label}</a>)}
         </nav>
         <div className="nav-actions">
+          <button className="icon-button search-toggle" onClick={() => { setSearchOpen(value => !value); setOpen(false); setQuery(''); }} aria-label={searchOpen ? 'Close search' : 'Search portfolio'} aria-expanded={searchOpen}>
+            {searchOpen ? <X size={17} /> : <Search size={17} />}
+          </button>
           <button className="icon-button theme-toggle" onClick={toggleTheme} aria-label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'} title="Toggle theme">
             {theme === 'dark' ? <Sun size={17} /> : <Moon size={17} />}
           </button>
           <a className="nav-availability" href="#contact"><span className="status-dot" />Let's connect <ArrowUpRight size={15}/></a>
-          <button className="icon-button mobile-menu-button" aria-label={open ? 'Close menu' : 'Open menu'} aria-expanded={open} aria-controls="mobile-navigation" onClick={() => setOpen(value => !value)}>
+          <button className="icon-button mobile-menu-button" aria-label={open ? 'Close menu' : 'Open menu'} aria-expanded={open} aria-controls="site-navigation-overlay" onClick={() => { setOpen(value => !value); setSearchOpen(false); }}>
             {open ? <X size={23} /> : <Menu size={23} />}
           </button>
         </div>
       </div>
       <AnimatePresence>
-        {open && (
-          <motion.nav id="mobile-navigation" className="mobile-panel" aria-label="Mobile navigation" initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.18 }}>
-            {navItems.map((item, index) => <a href={`#${item.id}`} key={item.id} onClick={closeMenu}><span>0{index + 1}</span>{item.label}<ArrowUpRight size={18}/></a>)}
-          </motion.nav>
-        )}
+        {searchOpen && <motion.div className="search-panel" initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: .18 }}>
+          <label htmlFor="portfolio-search"><Search size={18}/><span className="sr-only">Search portfolio</span></label>
+          <input id="portfolio-search" autoFocus value={query} onChange={event => setQuery(event.target.value)} placeholder="Search projects, skills, sections…" />
+          {query.trim() && <div className="search-results" role="listbox" aria-label="Search results">
+            {searchResults.length ? searchResults.map((item, index) => <a key={`${item.href}-${item.label}-${index}`} href={item.href} onClick={() => setSearchOpen(false)}><span><strong>{item.label}</strong><small>{item.detail}</small></span><ArrowUpRight size={16}/></a>) : <p>No matches found.</p>}
+          </div>}
+        </motion.div>}
+        {open && <motion.div id="site-navigation-overlay" className="site-menu-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: .2 }}>
+          <div className="site-menu-content"><span className="eyebrow">NAVIGATION <span className="section-number">/ 0{navItems.length}</span></span>
+            <nav aria-label="Full-screen navigation">{navItems.map((item, index) => <a href={`#${item.id}`} key={item.id} onClick={closeMenu}><span>0{index + 1}</span>{item.label}<ArrowUpRight size={22}/></a>)}</nav>
+            <div className="site-menu-socials"><span>FIND ME ONLINE</span><a href={portfolio.contact.github} target="_blank" rel="noopener noreferrer">GitHub <ArrowUpRight size={15}/></a>{portfolio.contact.linkedin && <a href={portfolio.contact.linkedin} target="_blank" rel="noopener noreferrer">LinkedIn <ArrowUpRight size={15}/></a>}{portfolio.contact.instagram && <a href={portfolio.contact.instagram} target="_blank" rel="noopener noreferrer">Instagram <ArrowUpRight size={15}/></a>}{portfolio.contact.x && <a href={portfolio.contact.x} target="_blank" rel="noopener noreferrer">X <ArrowUpRight size={15}/></a>}<a href={`mailto:${portfolio.contact.email}`}>Email <ArrowUpRight size={15}/></a></div>
+          </div>
+        </motion.div>}
       </AnimatePresence>
     </header>
   );
@@ -159,18 +174,18 @@ function Hero() {
   };
   return (
     <section id="home" className="hero-section" ref={heroRef} onPointerMove={onPointerMove}>
-      <div className="hero-grid-overlay"/><div className="hero-glow"/><div className="hero-orb"/>
+      <div className="hero-grid-overlay" aria-hidden="true" />
       <div className="container hero-layout">
         <div className="hero-copy">
-          <Reveal delay={0.04}><p className="hero-eyebrow"><span className="status-dot"/> OPEN TO LEARNING & COLLABORATION <span className="hero-eyebrow-line"/></p></Reveal>
+          <Reveal delay={0.04}><p className="hero-eyebrow"><span className="status-dot"/> Available to learn and collaborate</p></Reveal>
           <Reveal delay={0.1}><p className="hero-hello">Hello, I'm</p></Reveal>
           <Reveal delay={0.16}><h1 className="hero-name">Sk Sarfaraj <span>Ali<span className="period">.</span></span></h1></Reveal>
-          <Reveal delay={0.23}><div className="hero-role"><span className="role-bracket">&lt;</span> <TypeRole /> <span className="role-bracket">/&gt;</span></div></Reveal>
+          <Reveal delay={0.23}><div className="hero-role"><TypeRole /></div></Reveal>
           <Reveal delay={0.28}><p className="hero-description">{portfolio.intro} <span>Currently studying Computer Science & Engineering at {portfolio.education.college} in Indore.</span></p></Reveal>
           <Reveal className="hero-buttons" delay={0.34}>
-            <a className="button button-primary" href="#projects">Explore My Work <ArrowUpRight size={17}/></a>
-            <a className="button button-ghost" href="#contact">Contact Me <ArrowRight size={17}/></a>
-            {portfolio.resumeUrl ? <a className="button button-resume" href={portfolio.resumeUrl} download><Download size={16}/> Download Resume</a> : <button className="button button-resume" type="button" disabled title="Resume will be available soon"><Download size={16}/> Resume <span className="resume-soon">SOON</span></button>}
+            <a className="button button-primary" href="#projects">View projects <ArrowUpRight size={17}/></a>
+            <a className="button button-ghost" href="#contact">Get in touch <ArrowRight size={17}/></a>
+            {portfolio.resumeUrl && <a className="button button-resume" href={portfolio.resumeUrl} download><Download size={16}/> Resume</a>}
           </Reveal>
           <Reveal delay={0.4}><div className="hero-mini-meta"><span><MapPin size={14}/> {portfolio.location}</span><span className="meta-divider"/><span><GraduationCap size={15}/> Class of {portfolio.education.graduation}</span></div></Reveal>
         </div>
@@ -188,7 +203,7 @@ function About() {
   return (
     <section id="about" className="section about-section">
       <div className="container">
-        <SectionHeading eyebrow="ABOUT ME" title={<>A little about <span className="text-gradient">me.</span></>} subtitle="Curious by nature. Focused on learning. Always building." />
+        <SectionHeading eyebrow="About me" title={<>A little about <span className="text-gradient">me.</span></>} subtitle="Curious by nature. Focused on learning. Always building." />
         <div className="about-grid">
           <Reveal className="portrait-col">
             <div className="portrait-card">
@@ -222,7 +237,7 @@ function Skills() {
   return (
     <section id="skills" className="section skills-section">
       <div className="container">
-        <SectionHeading eyebrow="MY TOOLKIT" title={<>Skills &amp; <span className="text-gradient">technologies.</span></>} subtitle="A growing set of tools I use to turn concepts into functional interfaces." />
+        <SectionHeading eyebrow="My toolkit" title={<>Skills &amp; <span className="text-gradient">technologies.</span></>} subtitle="A growing set of tools I use to turn concepts into functional interfaces." />
         <div className="skills-grid">
           {portfolio.skills.map((skill, index) => {
             const Icon = skillIcons[index];
@@ -269,6 +284,7 @@ function ProjectCard({ project, featured = false }) {
       <div className="project-actions">
         {project.liveUrl && <a className="project-live-link" href={project.liveUrl} target="_blank" rel="noopener noreferrer">Live Preview <ArrowUpRight size={16}/></a>}
         {project.githubUrl && <a className="project-repo-link" href={project.githubUrl} target="_blank" rel="noopener noreferrer"><Github size={17}/> Source Code</a>}
+        <a className="project-inquiry-link" href={`mailto:${portfolio.contact.email}?subject=${encodeURIComponent(`Enquiry about ${project.name}`)}&body=${encodeURIComponent(`Hi Sarfaraj,\n\nI am interested in ${project.name}. Please share more details.\n\n`)}`}><Mail size={16}/> Enquire about this project</a>
       </div>
     </div>
   </Reveal>;
@@ -277,7 +293,7 @@ function Projects() {
   return (
     <section id="projects" className="section projects-section">
       <div className="container">
-        <SectionHeading eyebrow="SELECTED WORK" title={<>Things I've <span className="text-gradient">built.</span></>} subtitle="A look at real projects, from elegant interfaces to personal experiments." />
+      <SectionHeading eyebrow="Selected projects" title={<>Things I've <span className="text-gradient">built.</span></>} subtitle="Frontend work, with the details behind each project." />
         <div className="projects-list">{portfolio.projects.map((project, index) => <ProjectCard key={project.id} project={project} featured={index === 0}/>)}</div>
         <Reveal className="more-projects"><span>Interested in seeing more of my code?</span><a href={portfolio.contact.github} target="_blank" rel="noopener noreferrer">Explore GitHub <ArrowUpRight size={17}/></a></Reveal>
       </div>
@@ -316,7 +332,7 @@ function Contact() {
   return (
     <section id="contact" className="section contact-section">
       <div className="container">
-        <SectionHeading eyebrow="LET'S CONNECT" title={<>Let's build something <span className="text-gradient">great.</span></>} subtitle="Have an interesting idea, a project, or just want to say hello? I'd love to hear from you." />
+      <SectionHeading eyebrow="Contact" title={<>Let's build something <span className="text-gradient">great.</span></>} subtitle="Have an idea, a project, or a question? Send me a note." />
         <div className="contact-grid">
           <Reveal className="contact-intro">
             <div className="contact-spark"><Sparkles size={22}/></div>
@@ -352,16 +368,16 @@ function Footer() {
     <footer className="footer">
       <div className="container footer-inner">
         <div className="footer-brand"><a href="#home" className="footer-logo">S<span>.</span>A</a><p>Thoughtfully designed. Carefully developed.</p></div>
-        <div className="footer-right"><div className="footer-socials"><a href={portfolio.contact.github} target="_blank" rel="noopener noreferrer" aria-label="GitHub"><Github size={19}/></a>{portfolio.contact.linkedin && <a href={portfolio.contact.linkedin} target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><Linkedin size={19}/></a>}<a href={`mailto:${portfolio.contact.email}`} aria-label="Email"><Mail size={19}/></a></div><a href="#home" className="back-top" aria-label="Back to top"><ArrowUp size={19}/></a></div>
+        <div className="footer-right"><div className="footer-socials"><a href={portfolio.contact.github} target="_blank" rel="noopener noreferrer" aria-label="GitHub"><Github size={19}/></a>{portfolio.contact.linkedin && <a href={portfolio.contact.linkedin} target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><Linkedin size={19}/></a>}{portfolio.contact.instagram && <a href={portfolio.contact.instagram} target="_blank" rel="noopener noreferrer" aria-label="Instagram"><ExternalLink size={19}/></a>}{portfolio.contact.x && <a href={portfolio.contact.x} target="_blank" rel="noopener noreferrer" aria-label="X"><ExternalLink size={19}/></a>}<a href={`mailto:${portfolio.contact.email}`} aria-label="Email"><Mail size={19}/></a></div><a href="#home" className="back-top" aria-label="Back to top"><ArrowUp size={19}/></a></div>
       </div>
-      <div className="container footer-bottom"><span>© {new Date().getFullYear()} Sk Sarfaraj Ali</span><span>MADE WITH PURPOSE <span className="footer-star">✳</span> INDORE, INDIA</span></div>
+      <div className="container footer-bottom"><span>© {new Date().getFullYear()} Sk Sarfaraj Ali</span><span>Indore, India</span></div>
     </footer>
   );
 }
 
 export default function App() {
   const [theme, setTheme] = useState(() => {
-    try { return window.localStorage.getItem('portfolio-theme') === 'light' ? 'light' : 'dark'; } catch { return 'dark'; }
+    try { return window.localStorage.getItem('portfolio-theme') === 'dark' ? 'dark' : 'light'; } catch { return 'light'; }
   });
   useEffect(() => {
     document.documentElement.classList.toggle('light', theme === 'light');

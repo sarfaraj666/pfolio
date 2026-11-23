@@ -23,6 +23,8 @@ export const portfolio = {
     showPhone: false,
     github: 'https://github.com/sarfaraj666',
     linkedin: 'https://www.linkedin.com/in/sk-sarfaraj-ali0666/', // Check the profile URL before publishing.
+    instagram: '', // Add your public profile URL to show this link.
+    x: '', // Add your public profile URL to show this link.
   },
   skills: [
     { category: 'Programming', caption: 'Logic, problem solving & fundamentals', items: ['C', 'C++', 'Java', 'Python (Basic)'] },
